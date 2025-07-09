@@ -1,0 +1,4 @@
+[console_scripts]
+hsbpm = hsoundworks_cli.bpm_analyser:main
+hscheck = hsoundworks_cli.main:main
+hsconvert = hsoundworks_cli.convert:main

@@ -1,0 +1,12 @@
+README.md
+setup.py
+hsoundworks_cli/__init__.py
+hsoundworks_cli/bpm_analyser.py
+hsoundworks_cli/convert.py
+hsoundworks_cli/main.py
+hsoundworks_cli.egg-info/PKG-INFO
+hsoundworks_cli.egg-info/SOURCES.txt
+hsoundworks_cli.egg-info/dependency_links.txt
+hsoundworks_cli.egg-info/entry_points.txt
+hsoundworks_cli.egg-info/requires.txt
+hsoundworks_cli.egg-info/top_level.txt
