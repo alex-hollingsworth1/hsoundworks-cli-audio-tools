@@ -1,9 +1,9 @@
-"""BPM Analyser"""
+"""BPM Analyser Module"""
 
 import os
-import argparse
-import librosa
 import csv
+import librosa
+
 
 AUDIO_EXTENSIONS = (".mp3", ".wav", ".flac", ".ogg")
 
@@ -25,7 +25,7 @@ def calculate_bpm(file_path):
 
 def csv_writing(arg, results_list):
     """Write the BPM and filename information to a CSV file"""
-    with open(arg.log, 'w', encoding="utf-8") as f:
+    with open(arg.log, "w", encoding="utf-8") as f:
         writer = csv.writer(f)
         writer.writerow(["filename", "bpm"])
         writer.writerows(results_list)
@@ -44,24 +44,3 @@ def discover_audio_files(folder_path):
                 bpm_results.append((filename, bpm))
                 print(f"{filename} - BPM - {bpm}")
     return bpm_results
-
-
-def main():
-    """Main function for BPM analyser"""
-    parser = argparse.ArgumentParser(description="BPM analyser.")
-    parser.add_argument("folder_path", type=str,
-                        help="Path to folder with audio files.")
-    parser.add_argument("--log", type=str,
-                        help="Create a log of the BPM for the audio file")
-
-    args = parser.parse_args()
-    folder_path = args.folder_path
-
-    audio_results = discover_audio_files(folder_path)
-
-    if args.log:
-        csv_writing(args, audio_results)
-
-
-if __name__ == "__main__":
-    main()
