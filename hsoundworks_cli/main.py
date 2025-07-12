@@ -239,7 +239,7 @@ def filter_loops(min_duration=3.0):
         (min_duration,),
     )
 
-    print(f"\nAudio Files Longer Than {min_duration} Seconds:")
+    print(f"\nAudio Files longer Than {min_duration} Seconds:")
     print("-" * 60)
     for row in cursor.fetchall():
         name, sr, duration = row
