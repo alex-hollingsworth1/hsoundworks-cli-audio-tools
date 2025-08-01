@@ -17,7 +17,9 @@ from database.manager import (
     filter_loops,
 )
 
+# CLI constants
 SUPPORTED_EXTENSIONS = (".mp3", ".wav", ".flac", ".ogg")
+DEFAULT_OUTPUT_DIR = "converted_audio"
 
 np.set_printoptions(precision=2, suppress=True)
 
@@ -156,7 +158,7 @@ def handle_analyze(args):
 def handle_convert(args):
     """Handle the convert command."""
     folder_path = Path(args.folder_path)
-    output_dir = args.output_dir or "converted_audio"
+    output_dir = args.output_dir or DEFAULT_OUTPUT_DIR
     if not folder_path.exists():
         print(f"Error: Folder not found: {folder_path}")
         return
