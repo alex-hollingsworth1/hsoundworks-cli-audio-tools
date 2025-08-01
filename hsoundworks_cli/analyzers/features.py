@@ -9,8 +9,14 @@ import matplotlib.pyplot as plt
 
 from database.manager import save_to_database, setup_database
 
+# Audio analysis constants
+MFCC_COEFFICIENTS = 13
+FIGURE_WIDTH = 10
+FIGURE_HEIGHT = 4
+NUMPY_PRECISION = 2
+
 # Set numpy print options
-np.set_printoptions(precision=2, suppress=True)
+np.set_printoptions(precision=NUMPY_PRECISION, suppress=True)
 
 
 def audio_file_checker(
@@ -106,7 +112,7 @@ def audio_file_checker(
 
     if mfcc:
         try:
-            mfccs = librosa.feature.mfcc(y=y, sr=sr, n_mfcc=13)
+            mfccs = librosa.feature.mfcc(y=y, sr=sr, n_mfcc=MFCC_COEFFICIENTS)
 
             if plot:
                 filename = os.path.splitext(os.path.basename(file_path))[0]
@@ -179,7 +185,7 @@ def audio_file_checker(
 def plot_waveform(y, sr, title="Waveform"):
     """Function that draws waveform if user types --plot"""
     try:
-        plt.figure(figsize=(10, 4))
+        plt.figure(figsize=(FIGURE_WIDTH, FIGURE_HEIGHT))
         librosa.display.waveshow(y, sr=sr)
         plt.title(title)
         plt.xlabel("Time (s)")
@@ -202,8 +208,8 @@ def plot_features(
         if feature is None or feature.size == 0:
             print(f"Error: No feature data to plot for '{title}'")
             return False
-
-        plt.figure(figsize=(10, 4))
+            
+        plt.figure(figsize=(FIGURE_WIDTH, FIGURE_HEIGHT))
         plt.imshow(feature, aspect="auto", origin="lower", cmap="magma")
         plt.title(title)
         plt.xlabel("Time (frames)")

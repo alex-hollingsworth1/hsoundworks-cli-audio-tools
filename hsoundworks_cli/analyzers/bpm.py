@@ -5,7 +5,12 @@ import csv
 import librosa
 
 
+# Audio file extensions supported by the BPM analyzer
 AUDIO_EXTENSIONS = (".mp3", ".wav", ".flac", ".ogg")
+
+# BPM analysis constants
+MIN_BPM = 0
+MAX_BPM = 300
 
 
 def calculate_bpm(file_path):
@@ -33,7 +38,7 @@ def calculate_bpm(file_path):
             return None
 
         tempo = librosa.beat.tempo(y=y, sr=sr)[0]
-        if tempo <= 0 or tempo > 300:  # Sanity check for reasonable BPM range
+        if tempo <= MIN_BPM or tempo > MAX_BPM:  # Sanity check for reasonable BPM range
             print(
                 f"Warning: Unusual BPM detected ({tempo:.1f}) "
                 f"for file: {file_path}"

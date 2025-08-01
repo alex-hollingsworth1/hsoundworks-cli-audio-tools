@@ -4,11 +4,16 @@ import sqlite3
 import csv
 from pathlib import Path
 
+# Database constants
+DATABASE_NAME = "audio_library.db"
+DURATION_DECIMAL_PLACES = 1
+DEFAULT_MIN_DURATION = 3.0
+
 
 def setup_database():
     """Create a simple database to store our audio analysis results"""
     try:
-        conn = sqlite3.connect("audio_library.db")
+        conn = sqlite3.connect(DATABASE_NAME)
 
         conn.execute(
             """
@@ -55,14 +60,13 @@ def save_to_database(file_path, sample_rate, duration):
     file_path_obj = Path(file_path)
     if not file_path_obj.exists():
         print(f"Warning: File path does not exist: {file_path}")
-        # Continue anyway as the file might have been processed and
-        # moved
+        # Continue anyway as the file might have been processed and moved
 
     try:
-        conn = sqlite3.connect("audio_library.db")
-
-        # Round duration to 1 decimal place before saving
-        duration = round(duration, 1)
+        conn = sqlite3.connect(DATABASE_NAME)
+        
+        # Round duration to specified decimal places before saving
+        duration = round(duration, DURATION_DECIMAL_PLACES)
         file_name = file_path_obj.name
 
         conn.execute(
@@ -93,11 +97,11 @@ def export_to_csv(output_file="ah_audio_sample_library.csv"):
     if not output_file:
         print("Error: Output file name cannot be empty")
         return False
-
+        
     # Validate output directory
     output_path = Path(output_file)
     output_dir = output_path.parent
-
+    
     try:
         output_dir.mkdir(parents=True, exist_ok=True)
     except OSError as e:
@@ -105,7 +109,7 @@ def export_to_csv(output_file="ah_audio_sample_library.csv"):
         return False
 
     try:
-        conn = sqlite3.connect("audio_library.db")
+        conn = sqlite3.connect(DATABASE_NAME)
         cursor = conn.cursor()
 
         cursor.execute(
@@ -157,7 +161,7 @@ def export_to_csv(output_file="ah_audio_sample_library.csv"):
 def view_database():
     """View what's in the database"""
     try:
-        conn = sqlite3.connect("audio_library.db")
+        conn = sqlite3.connect(DATABASE_NAME)
         cursor = conn.cursor()
 
         cursor.execute(
@@ -190,16 +194,16 @@ def view_database():
             conn.close()
 
 
-def filter_loops(min_duration=3.0):
+def filter_loops(min_duration=DEFAULT_MIN_DURATION):
     """Show files in the database longer than min_duration seconds
     (default 3)."""
     # Validate input
     if not isinstance(min_duration, (int, float)) or min_duration < 0:
         print(f"Error: Invalid minimum duration: {min_duration}")
         return False
-
+        
     try:
-        conn = sqlite3.connect("audio_library.db")
+        conn = sqlite3.connect(DATABASE_NAME)
         cursor = conn.cursor()
 
         cursor.execute(
