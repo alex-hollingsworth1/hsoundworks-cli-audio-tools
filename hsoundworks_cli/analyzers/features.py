@@ -6,8 +6,8 @@ import librosa
 import librosa.display
 import numpy as np
 import matplotlib.pyplot as plt
-from pathlib import Path
-import sqlite3
+
+from database.manager import save_to_database, setup_database
 
 # Set numpy print options
 np.set_printoptions(precision=2, suppress=True)
@@ -45,7 +45,6 @@ def audio_file_checker(
     # Save to database
     if save_db:
         # Import from database.manager to avoid circular imports
-        from database.manager import save_to_database, setup_database
 
         setup_database()  # Ensure database exists
         save_to_database(file_path, sr, duration)
