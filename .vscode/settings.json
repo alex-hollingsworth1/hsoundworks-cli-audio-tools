@@ -1,0 +1,7 @@
+{
+  "python.analysis.extraPaths": ["./hsoundworks_cli"],
+  "python.linting.pylintArgs": [
+    "--init-hook",
+    "import sys; sys.path.append('./hsoundworks_cli')"
+  ]
+}
