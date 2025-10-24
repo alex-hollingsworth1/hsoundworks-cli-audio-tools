@@ -1,6 +1,6 @@
 # Audio Toolkit
 
-**Audio Toolkit** is a comprehensive Python application for audio analysis, conversion, and batch processing. It provides both a powerful command-line interface and an intuitive web-based GUI built with Streamlit — perfect for musicians, producers, audio engineers, and machine learning workflows.
+**Audio Toolkit** is a comprehensive Python application for audio analysis, conversion, and batch processing. It provides both a powerful command-line interface and an intuitive web-based GUI built with Streamlit — perfect for musicians, producers, audio engineers and audio developers.
 
 ---
 
