@@ -2,33 +2,24 @@
 """Streamlit GUI for Audio Toolkit"""
 
 import streamlit as st
-import os
 from pathlib import Path
 import pandas as pd
-import tempfile
 
 # Import your existing modules
 from analyzers.bpm import calculate_bpm, discover_audio_files, csv_writing
 from analyzers.features import audio_file_checker
 from converters.format import convert_audio
-from database.manager import (
-    setup_database,
-    export_to_csv,
-    view_database,
-    filter_loops,
-)
+from database.manager import setup_database, export_to_csv
 
 SUPPORTED_EXTENSIONS = (".mp3", ".wav", ".flac", ".ogg")
 
 st.set_page_config(page_title="Audio Toolkit", page_icon="🎵", layout="wide")
 
-st.title("🎵 Audio Toolkit GUI")
+st.title("Audio Toolkit GUI")
 st.markdown("---")
 
 # Create tabs
-tab1, tab2, tab3, tab4 = st.tabs(
-    ["🔍 Analyze", "🔄 Convert", "💾 Database", "📦 Batch"]
-)
+tab1, tab2, tab3, tab4 = st.tabs(["Analyze", "Convert", "Database", "Batch"])
 
 with tab1:
     st.header("Audio Analysis")
@@ -40,20 +31,24 @@ with tab1:
 
     if folder_path and Path(folder_path).exists():
         folder = Path(folder_path)
-        audio_files = [f for f in folder.glob("*") if f.suffix.lower() in SUPPORTED_EXTENSIONS]
-        
+        audio_files = [
+            f
+            for f in folder.glob("*")
+            if f.suffix.lower() in SUPPORTED_EXTENSIONS
+        ]
+
         if audio_files:
-            st.success(f"✅ Found {len(audio_files)} audio files:")
+            st.success(f"Found {len(audio_files)} audio files:")
             with st.expander("Click to see file list"):
                 for file in audio_files[:10]:  # Show first 10 files
                     st.text(f"• {file.name}")
                 if len(audio_files) > 10:
                     st.text(f"... and {len(audio_files) - 10} more files")
         else:
-            st.warning("⚠️ No audio files found in this folder")
+            st.warning("No audio files found in this folder")
             st.info("Looking for: .mp3, .wav, .flac, .ogg files")
     elif folder_path:
-        st.error(f"❌ Folder not found: {folder_path}")
+        st.error(f"Folder not found: {folder_path}")
 
     col1, col2 = st.columns(2)
 
@@ -87,7 +82,7 @@ with tab1:
 
                 # BPM analysis
                 if bpm_analysis:
-                    st.info("🎵 Calculating BPM...")
+                    st.info("Calculating BPM...")
                     results = discover_audio_files(folder_path)
 
                     if results:
@@ -123,10 +118,11 @@ with tab1:
                     ]
 
                     progress_bar = st.progress(0)
+                    feature_results = []
                     for i, file in enumerate(audio_files):
                         st.text(f"Processing: {file.name}")
 
-                        audio_file_checker(
+                        result = audio_file_checker(
                             str(file),
                             plot=plot_analysis,
                             mfcc=mfcc_analysis,
@@ -135,9 +131,17 @@ with tab1:
                             save_db=save_to_db,
                         )
 
+                        if result is not None:
+                            feature_results.append(result)
+
                         progress_bar.progress((i + 1) / len(audio_files))
 
-                st.success("✅ Analysis complete!")
+                    # Display feature analysis results
+                    if feature_results:
+                        st.subheader("Feature Analysis Results")
+                        df = pd.DataFrame(feature_results)
+                        st.dataframe(df)
+
 
 with tab2:
     st.header("Audio Conversion")
@@ -293,7 +297,8 @@ with tab4:
 
                     for i, file in enumerate(audio_files):
                         st.text(
-                            f"[{i+1}/{len(audio_files)}] Processing: {file.name}"
+                            f"[{i+1}/{len(audio_files)}] Processing: "
+                            f"{file.name}"
                         )
 
                         if batch_bpm:
@@ -322,10 +327,10 @@ st.sidebar.info(
 This is a GUI for the Audio Toolkit CLI application.
 
 **Features:**
-- 🔍 Audio analysis (BPM, features, plots)
-- 🔄 Format conversion
-- 💾 Database management
-- 📦 Batch processing
+- Audio analysis (BPM, features, plots)
+- Database management
+- Format conversion
+- Batch processing
 
 **Supported formats:**
 MP3, WAV, FLAC, OGG

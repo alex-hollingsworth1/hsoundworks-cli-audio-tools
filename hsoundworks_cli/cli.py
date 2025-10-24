@@ -131,7 +131,7 @@ def handle_analyze(args):
         print(f"Error: Folder not found: {folder_path}")
         return
     if args.bpm:
-        print("\n🎵 Calculating BPM...")
+        print("\nCalculating BPM...")
         results = discover_audio_files(str(folder_path))
         if args.log:
             csv_writing(args, results)
@@ -142,7 +142,7 @@ def handle_analyze(args):
         or args.spectrogram
         or args.save_db
     ):
-        print("\n📊 Analyzing audio features...")
+        print("\nAnalyzing audio features...")
         for file in folder_path.glob("*"):
             if file.suffix.lower() in SUPPORTED_EXTENSIONS:
                 audio_file_checker(
@@ -162,7 +162,7 @@ def handle_convert(args):
     if not folder_path.exists():
         print(f"Error: Folder not found: {folder_path}")
         return
-    print(f"\n🔄 Converting audio files to {args.format}...")
+    print(f"\nConverting audio files to {args.format}...")
     output_path = Path(output_dir)
     output_path.mkdir(exist_ok=True)
     for file in folder_path.glob("*"):
@@ -182,6 +182,7 @@ def handle_database(args):
 
 
 def handle_batch(args):
+    """Handle the batch of audio files."""
     folder_path = Path(args.folder_path)
     if not folder_path.exists():
         print(f"Error: Folder not found: {folder_path}")
@@ -224,7 +225,7 @@ def main():
         handle_database(args)
     elif args.command == "batch":
         handle_batch(args)
-    print("\n✅ Done!")
+    print("\nDone!")
 
 
 if __name__ == "__main__":

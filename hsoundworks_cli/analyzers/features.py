@@ -29,16 +29,28 @@ def audio_file_checker(
 ):
     """Analyses audio file and provides file name, sample rate
     and duration. Option to show plot graphs, mfcc graphs and chroma
-    graphs."""
+    graphs. Returns a dictionary with analysis results."""
+
+    # Initialize results dictionary
+    results = {
+        "filename": os.path.basename(file_path),
+        "sample_rate": None,
+        "duration_seconds": None,
+        "mfcc_calculated": False,
+        "chroma_calculated": False,
+        "spectrogram_calculated": False,
+        "saved_to_db": False,
+    }
+
     # Validate file existence
     if not os.path.isfile(file_path):
         print(f"Error: File does not exist: {file_path}")
-        return False
+        return None
 
     # Check file permissions
     if not os.access(file_path, os.R_OK):
         print(f"Error: No read permission for file: {file_path}")
-        return False
+        return None
 
     try:
         # Load the audio
@@ -46,27 +58,27 @@ def audio_file_checker(
 
         if y is None or (hasattr(y, "size") and y.size == 0):
             print(f"Error: Could not load audio data from file: {file_path}")
-            return False
+            return None
 
     except librosa.LibrosaError as e:
         print(f"Librosa error loading {file_path}: {e}")
-        return False
+        return None
     except FileNotFoundError:
         print(f"Error: File not found during loading: {file_path}")
-        return False
+        return None
     except (ValueError, TypeError) as e:
         print(f"Data validation error loading {file_path}: {e}")
-        return False
+        return None
     except MemoryError:
         print(f"Memory error: File too large to process: {file_path}")
-        return False
+        return None
 
     try:
         output_dir = os.path.join(os.getcwd(), "outputs")
         os.makedirs(output_dir, exist_ok=True)
     except OSError as e:
         print(f"Error creating output directory: {e}")
-        return False
+        return None
 
     try:
         # Work out the duration
@@ -76,11 +88,15 @@ def audio_file_checker(
             print(
                 f"Error: Invalid duration ({duration}s) for file: {file_path}"
             )
-            return False
+            return None
 
         # If stereo, average the channels to make it mono
         if y.ndim > 1:
             y = np.mean(y, axis=0)
+
+        # Populate results dictionary
+        results["sample_rate"] = sr
+        results["duration_seconds"] = float(duration)
 
         # Print core info
         print(f"\nFile: {os.path.basename(file_path)}")
@@ -89,10 +105,10 @@ def audio_file_checker(
 
     except (ValueError, TypeError) as e:
         print(f"Data validation error processing audio properties: {e}")
-        return False
+        return None
     except MemoryError:
         print("Memory error: Audio file too large to process")
-        return False
+        return None
 
     # Save to database
     if save_db:
@@ -100,6 +116,7 @@ def audio_file_checker(
             # Import from database.manager to avoid circular imports
             setup_database()  # Ensure database exists
             save_to_database(file_path, sr, duration)
+            results["saved_to_db"] = True
         except (ValueError, TypeError) as e:
             print(f"Data validation error saving to database: {e}")
             # Continue execution even if database save fails
@@ -113,6 +130,7 @@ def audio_file_checker(
     if mfcc:
         try:
             mfccs = librosa.feature.mfcc(y=y, sr=sr, n_mfcc=MFCC_COEFFICIENTS)
+            results["mfcc_calculated"] = True
 
             if plot:
                 filename = os.path.splitext(os.path.basename(file_path))[0]
@@ -135,6 +153,7 @@ def audio_file_checker(
     if chroma:
         try:
             chroma_feat = librosa.feature.chroma_stft(y=y, sr=sr)
+            results["chroma_calculated"] = True
 
             if plot:
                 filename = os.path.splitext(os.path.basename(file_path))[0]
@@ -159,6 +178,7 @@ def audio_file_checker(
         try:
             spectro_feat = librosa.stft(y=y)
             s_db = librosa.amplitude_to_db(np.abs(spectro_feat), ref=np.max)
+            results["spectrogram_calculated"] = True
 
             if plot:
                 filename = os.path.splitext(os.path.basename(file_path))[0]
@@ -179,7 +199,7 @@ def audio_file_checker(
         except MemoryError:
             print("Memory error: Cannot compute Spectrogram - file too large")
 
-    return True
+    return results
 
 
 def plot_waveform(y, sr, title="Waveform"):
@@ -208,7 +228,7 @@ def plot_features(
         if feature is None or feature.size == 0:
             print(f"Error: No feature data to plot for '{title}'")
             return False
-            
+
         plt.figure(figsize=(FIGURE_WIDTH, FIGURE_HEIGHT))
         plt.imshow(feature, aspect="auto", origin="lower", cmap="magma")
         plt.title(title)
