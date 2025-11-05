@@ -1,9 +1,8 @@
 """BPM Analyser Module"""
 
 import os
-import csv
 import librosa
-
+import pandas as pd  # Import pandas
 
 # Audio file extensions supported by the BPM analyzer
 AUDIO_EXTENSIONS = (".mp3", ".wav", ".flac", ".ogg")
@@ -38,7 +37,9 @@ def calculate_bpm(file_path):
             return None
 
         tempo = librosa.beat.tempo(y=y, sr=sr)[0]
-        if tempo <= MIN_BPM or tempo > MAX_BPM:  # Sanity check for reasonable BPM range
+        if (
+            tempo <= MIN_BPM or tempo > MAX_BPM
+        ):  # Sanity check for reasonable BPM range
             print(
                 f"Warning: Unusual BPM detected ({tempo:.1f}) "
                 f"for file: {file_path}"
@@ -64,13 +65,15 @@ def calculate_bpm(file_path):
 
 
 def csv_writing(arg, results_list):
-    """Write the BPM and filename information to a CSV file"""
+    """Write the BPM and filename information to a CSV file using
+    Pandas"""
     if not results_list:
         print("Warning: No BPM results to write to CSV")
         return False
 
+    output_file = arg.log
     # Validate output directory exists
-    output_dir = os.path.dirname(arg.log)
+    output_dir = os.path.dirname(output_file)
     if output_dir and not os.path.exists(output_dir):
         try:
             os.makedirs(output_dir, exist_ok=True)
@@ -79,20 +82,27 @@ def csv_writing(arg, results_list):
             return False
 
     try:
-        with open(arg.log, "w", encoding="utf-8") as f:
-            writer = csv.writer(f)
-            writer.writerow(["filename", "bpm"])
-            writer.writerows(results_list)
-            print(f"\nBPM log saved to {arg.log}")
-            return True
+        # 1. Create a DataFrame from the results
+        df = pd.DataFrame(results_list, columns=["filename", "bpm"])
+
+        # 2. Save to CSV
+        df.to_csv(output_file, index=False, encoding="utf-8")
+        # --- END OF REPLACEMENT ---
+
+        print(f"\nBPM log saved to {output_file}")
+        return True
+
     except PermissionError:
-        print(f"Error: Permission denied writing to {arg.log}")
+        print(f"Error: Permission denied writing to {output_file}")
         return False
     except OSError as e:
-        print(f"Error writing CSV file {arg.log}: {e}")
+        print(f"Error writing CSV file {output_file}: {e}")
         return False
     except (ValueError, TypeError) as e:
         print(f"Data validation error writing CSV file: {e}")
+        return False
+    except Exception as e:  # Catch pandas-specific errors
+        print(f"An error occurred writing the CSV with pandas: {e}")
         return False
 
 
