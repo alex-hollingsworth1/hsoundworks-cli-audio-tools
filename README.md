@@ -198,6 +198,15 @@ Results are displayed as interactive DataFrames in the Streamlit GUI for easy vi
 
 ---
 
+## Roadmap / Planned Features
+
+- Key detection for full tracks and loops
+- Basic chord recognition from chroma features
+- Simple beat-grid and downbeat visualisation
+- Longer-term: ML-based key/chord estimation and automatic tagging for educational use
+
+---
+
 ## Contributing
 
 Pull requests are welcome! For major changes, please open an issue first to discuss your proposed changes.
